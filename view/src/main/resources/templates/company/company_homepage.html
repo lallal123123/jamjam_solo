@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기업 마이페이지</title>
+    
+    <link  rel="stylesheet" type="text/css" href="/css/company.css">   
+</head>
+<body>
+    <div  th:replace="header :: headerFragment">
+        <!-- The header content will be included here -->
+    </div>
+    <div class="container">
+        
+        <div class="sidebar"  th:replace="sidebar :: sidebarFragment">
+            <!-- Sidebar content will be included here -->
+        </div>
+        <div class="content">
+           
+           
+            <div class="job-list">
+                <h3>자신이 작성한 공고 리스트</h3>
+                <div id="box"></div>
+                <div id="result"></div>
+            </div>
+            <div class="matching-list">
+                <h3>지원자 매칭 리스트</h3>
+                <div id="matching-box"></div>
+                <div id="matching-result"></div>
+            </div>
+            <div class="proposal-list">
+                <h3>포지션 제안자 리스트</h3>
+                <div id="proposal-box"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 공고 리스트 로드
+        function pre() {
+            let box = document.querySelector("#box");
+            let company_id = "[[${session.company_id}]]";
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                let postings = JSON.parse(this.responseText);
+                let deadline_status;
+                postings.forEach(posting => {
+                    if(posting.deadline_status == 0) {
+                        deadline_status = '<button class="closeBtn" onclick="closePosting(event)">공고마감</button>';
+                    } else {
+                        deadline_status = '공고마감';
+                    }
+                    box.innerHTML += '<div class="job-item" id=' + posting.posting_id + '> <span class="application_deadline">' + posting.application_deadline.slice(0, 10) + '</span>' +
+                    '<span class="postingTitle"><p><a href="/company/job_posting_detail_company?posting_id=' + posting.posting_id + '">' + posting.title + '</a></p>' +
+                    '<p class="applicantNumber"></p></span>' +
+                    '<span class="postingClose">' + deadline_status + '</span>' +
+                    '<span class="postingDelete"><button class="deleteBtn" onclick="deletePosting(event)">공고삭제</button></span></div>';
+                });
+            };
+            xhttp.open("GET", "http://localhost:8888/company/jobposting?company_id=" + company_id);
+            xhttp.send();
+        }
+
+        function deletePosting(e) {
+            let id = e.target.closest('div').id;
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                document.querySelector("#result").innerHTML = this.responseText;
+            };
+            xhttp.open("DELETE", "http://localhost:8888/company/jobposting/" + id);
+            xhttp.send();
+        }
+
+        function closePosting(e) {
+            let div = e.target.closest('div');
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                let postingClose = e.target.closest('.postingClose');
+                postingClose.innerHTML = "공고마감";
+            };
+            xhttp.open("PUT", "http://localhost:8888/company/jobposting/status/" + div.id);
+            xhttp.send();
+        }
+
+        // 매칭 리스트 로드
+        function loadMatchingList() {
+            let box = document.querySelector("#matching-box");
+            let company_id = "[[${session.company_id}]]";
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                let postings = JSON.parse(this.responseText);
+                postings.forEach(posting => {
+                    box.innerHTML += '<div class="matching-item" id=' + posting.posting_id + '> <span class="title">' + posting.title + '</span>' +
+                    '<span class="keywords" id=' + posting.keywords + '><button class="machingListBtn" onclick="machingList(event,' + posting.posting_id + ')">매칭리스트보기</button></span></div><div class="machingBox" id=machingBox' + posting.posting_id + ' ></div>';
+                });
+            };
+            xhttp.open("GET", "http://localhost:8888/company/jobposting?company_id=" + company_id);
+            xhttp.send();
+        }
+
+        function machingList(e, posting_id) {
+            let keywords = e.target.closest(".keywords").id;
+            const box = document.getElementById('machingBox' + posting_id);
+            box.innerHTML = '';
+            let company_id = '[[${session.company_id}]]';
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                let users = JSON.parse(this.responseText);
+                users.forEach(user => {
+                    let btn = "";
+                    if(user.proposalStatus == "0") {
+                        btn = '<button class="proposalBtn" onclick="proposal(event,' + company_id + ',' + user.user_id + ')">포지션제안</button>';
+                    } else if(user.proposalStatus == "1") {
+                        btn = '제안완료';
+                    }
+                    box.innerHTML += '<div class="matching-item" id=' + user.user_id + '> <span class="name">' + user.name + '</span>' +
+                    '<span class="UserInfo"> 생년월일:' + user.birth_date.slice(0, 10) + ' 성별:' + user.gender + ' 이메일:' + user.email + '</span>' +
+                    '<span class="proposal" id=' + company_id + '>' + btn + '</span></div>';
+                });
+            };
+            xhttp.open("GET", "http://localhost:8888/company/machingList?keywords=" + keywords + "&company_id=" + company_id);
+            xhttp.send();
+        }
+
+        function proposal(e, company_id, user_id) {
+            location.href = "/company/position_suggestion?company_id=" + company_id + "&user_id=" + user_id;
+        }
+
+        // 포지션 제안자 리스트 로드
+        function loadProposalList() {
+            let box = document.querySelector("#proposal-box");
+            let company_id = "[[${session.company_id}]]";
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                let proposals = JSON.parse(this.responseText);
+                proposals.slice(0, 5).forEach(proposal => {
+                    box.innerHTML += '<div class="proposal-item" id="' + proposal.proposal_id + '"> <span class="user-name">' + proposal.user_name + '</span>' +
+                    '<span class="proposal-title">' + proposal.proposal_title + '</span>' +
+                    '<span class="status">' + proposal.status + '</span>' +
+                    '<span><button class="contentBtn" onclick="toggleProposalContent(event,' + proposal.proposal_id + ')">제안내용 보기</button></span>' +
+                    '</div><div class="proposal-content" id="proposal-content-' + proposal.proposal_id + '" style="display: none;">' + proposal.proposal_content + '</div><hr>';
+                });
+            };
+            xhttp.open("GET", "http://localhost:8888/company/positionProposal/" + company_id);
+            xhttp.send();
+        }
+
+        function toggleProposalContent(event, proposal_id) {
+            let content = document.getElementById("proposal-content-" + proposal_id);
+            content.style.display = content.style.display === "none" ? "block" : "none";
+        }
+
+        pre();
+        loadMatchingList();
+        loadProposalList();
+    </script>
+</body>
+</html>

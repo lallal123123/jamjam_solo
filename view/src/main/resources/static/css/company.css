@@ -1,0 +1,134 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0; /* Lighter background for contrast */
+    color: #2F4F4F;
+}
+h1 a {
+	text-decoration: none;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3F6F6F; /* Brighter color */
+    color: white;
+    padding: 10px 20px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+    color :#0A2A22;
+}
+
+.menu a, .user-info a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    background-color: #4F8F8F; /* Brighter color */
+    color: white;
+    padding: 20px;
+    width: 230px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+     height: 100%;
+   
+}
+ .sidebar h2{
+ 	color: #0A2A22;
+ 
+ 
+ } 
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    margin: 10px 0;
+}
+
+.content {
+    flex-grow: 1;
+    background-color: white;
+    padding: 20px;
+    color: #2F4F4F;
+}
+
+.profile-section h2 {
+    margin-top: 0;
+}
+
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.navigation div a {
+    color: #3F6F6F; /* Brighter color */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.job-list, .matching-list, .proposal-list {
+    margin-top: 20px;
+}
+
+h3 {
+    border-bottom: 2px solid #3F6F6F; /* Brighter color */
+    padding-bottom: 10px;
+}
+
+#box, #matching-box, #proposal-box {
+    border: 1px solid #7FAFAF; /* Brighter color */
+    padding: 10px;
+    background-color: #f9f9f9; /* Lighter background */
+}
+
+.job-item, .matching-item, .proposal-item, .proposal_id , .application_id{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #7FAFAF; /* Brighter color */
+}
+
+.job-item:last-child, .matching-item:last-child, .proposal-item:last-child, .proposal_id :last-child, .application_id:last-child {
+    border-bottom: none;
+}
+
+button {
+    background-color: #3F6F6F; /* Brighter color */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #5F9F9F; /* Brighter hover color */
+}
+
+.postingTitle a, .title, .user-name {
+    font-weight: bold;
+    color: #2F4F4F;
+}
+
+.application_deadline, .postingClose, .postingDelete, .UserInfo, .proposal {
+    margin-left: 10px;
+}
+
+.proposal-content {
+    margin-top: 10px;
+    background-color: #f1f1f1; /* Lighter background */
+    padding: 10px;
+    border-radius: 5px;
+    color: #2F4F4F;
+}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+ 
+</head>
+<body>
+    <div id="sidebar" th:fragment="sidebarFragment">
+      <div class="container">
+        <div class="sidebar">
+            <h2>기업회원</h2>
+           
+            <div style="margin-left: 10px;">
+                <a href="/company/company_edit_profile">기업회원 정보수정</a>
+            </div>
+            <h2>채용공고관리</h2>
+            <div style="margin-left: 10px;">
+              	<a href="/company/job_posting_create">채용공고등록</a>
+        	  	<a href="/company/company_job_postings_list">자신이 작성한 공고 리스트</a>
+            </div>
+            <h2>기업소개관리</h2>
+            <div style="margin-left: 10px;">
+              	<a href="/company/company_introduction_create">기업소개 등록</a>
+        	  	<a th:href="@{/company/company_introduction_edit(company_id=${session.company_id})}">기업소개 수정</a>
+        	  	<a th:href="@{/company/company_introduction_detail(company_id=${session.company_id})}">기업소개 상세페이지</a>
+            </div>
+            <h2>매칭/포지션</h2>
+            <div style="margin-left: 10px;">
+              	<a href="/company/position_matching_list_company">매칭 리스트</a>
+       		  	<a href="/company/position_suggestion_list">포지션 제안자 리스트</a>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+</html>

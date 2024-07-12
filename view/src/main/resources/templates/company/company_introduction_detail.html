@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Company Introduction</title>
+<script src="https://code.jquery.com/jquery-3.7.1.js"
+    integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1, h2, h3 {
+        color: #333;
+    }
+
+    .company-info {
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+
+    .field {
+        margin-bottom: 10px;
+    }
+
+    .field label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .field span {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .logoBox img {
+       width: 500px;
+    height: 500px;
+    object-fit: cover;
+    }
+</style>
+<link th:if="${session.company_id ne null}" rel="stylesheet" type="text/css" href="/css/company.css">   
+</head>
+<body>
+    <div th:if="${session.company_id ne null}" th:replace="header :: headerFragment">
+        <!-- The header content will be included here -->
+    </div>
+    <div class="container">
+        
+        <div class="sidebar" th:if="${session.company_id ne null}" th:replace="sidebar :: sidebarFragment">
+            <!-- Sidebar content will be included here -->
+        </div>
+        <div class="content">
+         
+         <h1>기업소개</h1>
+<p id="company_id" style="display: none;">[[${session.company_id}]]</p>
+<div id="companyInfoContainer" class="company-info">
+    <div class="logoBox">
+        <img src="" id="logo" alt="Company Logo" style="width: 300px; height: 300px; object-fit: contain;">
+    </div>
+     <div class="field">
+        <label>회사 이름:</label>
+        <p>회사명 : <a id="company_name" href=""></a>
+<span id="company_id" style="display: none;"></span></p>
+    </div>
+    <div class="field">
+        <label>업종 :</label>
+        <span id="company_type"></span>
+    </div>
+    <div class="field">
+        <label>회사 소개:</label>
+        <span id="description"></span>
+    </div>
+    <div class="field">
+        <label>사원수:</label>
+        <span id="number_of_employees"></span>
+    </div>
+    <div class="field">
+        <label>근무환경:</label>
+        <span id="working_environment"></span>
+    </div>
+    <div class="field">
+        <label>복리후생:</label>
+        <span id="benefits"></span>
+    </div>
+    <div class="field">
+        <label>인재상:</label>
+        <span id="ideal_candidate"></span>
+    </div>
+    <div class="field">
+        <label>전화번호:</label>
+        <span id="main_contact"></span>
+    </div>
+    <div class="field">
+        <label>이메일:</label>
+        <span id="main_email"></span>
+    </div>
+    <div class="field">
+        <label>회사대표 :</label>
+        <span id="representative_name"></span>
+    </div>
+    <div class="field">
+        <label>주소 :</label>
+        <span id="address"></span>
+    </div>
+</div>
+<button id="updateBtn" style="display: none;" onclick="update()">수정하기</button>
+
+<br><br>
+<div id="map" style="width:400px;height:250px;"></div>
+         
+         <br><br><br><br>
+         
+        </div>
+    </div>
+
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=906820dc89cc6e06ebf1f3063fe49049&libraries=services"></script>
+<script>
+function addressMap(address, company_name) {
+    var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+        mapOption = {
+            center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+            level: 3 // 지도의 확대 레벨
+        };  
+
+    // 지도를 생성합니다    
+    var map = new kakao.maps.Map(mapContainer, mapOption); 
+
+    // 주소-좌표 변환 객체를 생성합니다
+    var geocoder = new kakao.maps.services.Geocoder();
+
+    // 주소로 좌표를 검색합니다
+    geocoder.addressSearch(address, function(result, status) {
+        // 정상적으로 검색이 완료됐으면 
+        if (status === kakao.maps.services.Status.OK) {
+            var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+            // 결과값으로 받은 위치를 마커로 표시합니다
+            var marker = new kakao.maps.Marker({
+                map: map,
+                position: coords
+            });
+
+            // 인포윈도우로 장소에 대한 설명을 표시합니다
+            var infowindow = new kakao.maps.InfoWindow({
+                content: '<div style="width:150px;text-align:center;padding:6px 0;">' + company_name + '</div>'
+            });
+            infowindow.open(map, marker);
+
+            // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+            map.setCenter(coords);
+        } 
+    }); 
+}
+
+$(document).ready(function() {
+    fetchCompanyInfo();
+});
+
+function fetchCompany() {
+    let company_id = $("#company_id").text(); // Thymeleaf syntax to get company_id from session
+   
+    if (company_id) {
+        $.ajax({
+            url: "http://localhost:8888/company/" + company_id,
+            method: "GET",
+            success: function(data) {
+                displayCompany(data);
+            },
+            error: function() {
+                console.log("Error fetching company info");
+            }
+        });
+    }
+}
+
+function displayCompany(company) {
+    $("#company_name").text(company.company_name);
+    $("#company_type").text(company.company_type);
+    $("#representative_name").text(company.representative_name);
+    let parts = company.address.split("//");
+    $("#address").text(parts[0] + " " + parts[1] + " " + parts[2]);
+    addressMap(company.address, company.company_name);
+}
+
+function fetchCompanyInfo() {
+    let company_id = "[[${session.company_id}]]";
+    const urlParams = new URLSearchParams(window.location.search);
+    const company_idP = urlParams.get('company_id');
+   
+    let info_id = "[[${info_id}]]"; // Thymeleaf syntax to get info_id from session
+
+    if (info_id) {
+        $.ajax({
+            url: "http://localhost:8888/company/companyInfo/info_id/" + info_id,
+            method: "GET",
+            success: function(data) {
+                displayCompanyInfo(data);
+            },
+            error: function() {
+                console.log("Error fetching company info");
+            }
+        });
+    } else if (company_id) {
+        $.ajax({
+            url: "http://localhost:8888/company/companyInfo/" + company_id,
+            method: "GET",
+            success: function(data) {
+                displayCompanyInfo(data);
+            },
+            error: function() {
+                console.log("Error fetching company info");
+            }
+        });
+    } else if (company_idP) {
+        $.ajax({
+            url: "http://localhost:8888/company/companyInfo/" + company_idP,
+            method: "GET",
+            success: function(data) {
+                displayCompanyInfo(data);
+            },
+            error: function() {
+                console.log("Error fetching company info");
+            }
+        });
+    }
+}
+
+function displayCompanyInfo(companyInfo) {
+    $("#logo").attr("src", "/images/" + companyInfo.new_name);
+    $("#description").html(companyInfo.description);
+    $("#number_of_employees").text(companyInfo.number_of_employees);
+    $("#working_environment").text(companyInfo.working_environment);
+    $("#benefits").text(companyInfo.benefits);
+    $("#ideal_candidate").text(companyInfo.ideal_candidate);
+    $("#main_contact").text(companyInfo.main_contact);
+    $("#main_email").text(companyInfo.main_email);
+    $("#company_id").text(companyInfo.company_id);
+    fetchCompany();
+    toggleUpdateButton(companyInfo.company_id);
+}
+
+function toggleUpdateButton(companyId) {
+    let sessionCompanyId = "[[${session.company_id}]]";
+    console.log("Company ID:", companyId); // Debugging
+    console.log("Session Company ID:", sessionCompanyId); // Debugging
+    if (companyId == sessionCompanyId) {
+        $("#updateBtn").show();
+    } else {
+        $("#updateBtn").hide();
+    }
+}
+
+function update() {
+
+    window.location.href = "/company/company_introduction_edit";
+}
+
+</script>
+
+</body>
+</html>

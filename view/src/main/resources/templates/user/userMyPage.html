@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>my page</title>
+    <link rel="stylesheet" type="text/css" href="/css/user.css">
+    <style>
+        .profile-section {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background-color: #f0f8ff;
+            border-bottom: 1px solid #ccc;
+        }
+        .profile-section img {
+            border-radius: 50%;
+            margin-right: 20px;
+            width: 100px;
+            height: 100px;
+            border: 2px solid #3385ff;
+        }
+        .profile-section .info {
+            display: flex;
+            flex-direction: column;
+        }
+        .profile-section span {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f2f2f2;
+            padding: 10px;
+        }
+        .navigation div {
+            text-align: center;
+            flex-grow: 1;
+        }
+        .navigation div a {
+            text-decoration: none;
+            color: #0073b1;
+            font-weight: bold;
+        }
+        .job-list {
+            margin: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .job-list h3 {
+            margin: 0;
+            padding: 10px;
+            background-color: rgba(240, 222, 196, 0.733);
+            border-bottom: 1px solid #ccc;
+            font-size: 20px;
+        }
+        .job-list .job-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+        }
+        .job-list .job-item:last-child {
+            border-bottom: none;
+        }
+        .job-list .job-item h3 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .job-list .job-item p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .job-list .job-item button {
+            background-color: #ff7f00;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            align-self: flex-start;
+        }
+        .job-list .job-item button:hover {
+            background-color: #e66e00;
+        }
+        .job-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .job-list th, .job-list td {
+            padding: 10px;
+            text-align: left;
+        }
+        .job-list th {
+            background-color: #f2f2f2;
+            border-bottom: 1px solid #ccc;
+        }
+        .job-list td {
+            border-bottom: 1px solid #eee;
+        }
+        .job-list td button {
+            background-color: #d9534f;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .job-list td button:hover {
+            background-color: #c9302c;
+        }
+        
+        a{
+        	color:black;
+        	text-decoration: none;
+        }
+        a:hover{
+        	color:blue;
+        	text-decoration: underline;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+        	$("#menu").load("/user_menubar.html", function() {
+                fetchUserInfo();
+            });
+            $("#sidebar").load("/user_sidebar.html");
+        });
+
+        function fetchUserInfo() {
+            $.ajax({
+                url: "http://localhost:8888/userInfo",
+                method: "GET",
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function (data) {
+                	$("#userName").text(data.name);
+                    $("#profileUserName").text(data.name);
+                    $('#contact').text(formatContact(data.contact));
+                    $('#age').text(calculateAge(data.birth_date));
+                    $('#gender').text(formatGender(data.gender));
+                    userEmail = data.email;
+                    fetchMatchingPostings(userEmail);
+                    listScrap();
+                    fetchLatestResume(userEmail);
+                    $("#loggedInSection").show();
+                    $("#loggedOutSection").hide();
+                },
+                error: function () {
+                    console.log('사용자 정보를 가져오는 중 오류가 발생했습니다.');
+                }
+            });
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = ('0' + (date.getMonth() + 1)).slice(-2);
+            const day = ('0' + date.getDate()).slice(-2);
+            return `${year}-${month}-${day}`;
+        }
+
+        function cancelScrapJob(post_id){
+            $.ajax({
+                url: `http://localhost:8888/user/cancelScrapJob/${post_id}?email=${userEmail}`,
+                method: "DELETE",
+                success: function(data){
+                    alert("스크랩 취소 되었습니다.");
+                    window.location.href="/user/scrapList";
+                }
+            });
+        }
+
+        function listScrap(){
+            $.ajax({
+                url: `http://localhost:8888/user/scrapList?email=${userEmail}`,
+                method: "GET",
+                success: function (data){
+                    const tableBody = $('#scrapTable tbody');    
+                    tableBody.empty();
+                    if(data.length > 0){
+                        data.forEach(scrap => {
+                            post_id = scrap.posting_id;
+                            console.log(scrap.posting_id);
+                            console.log(scrap.title);
+                            let parts = scrap.keywords.split('//');
+                            const row = `<tr>
+                                <td>${scrap.company_name}</td>
+                                <td><a href="/company/job_posting_detail_company?posting_id=${scrap.posting_id}">${scrap.title}</a><br>`+parts[0]+ parts[1]+`</td>
+                                <td>${formatDate(scrap.application_deadline)}</td>
+                                <td><button type="button" onclick="cancelScrapJob(${scrap.posting_id})">스크랩 취소</button></td>
+                            </tr>`;
+                            tableBody.append(row);
+                        });
+                    } else{
+                        const row = '<tr><td colspan="4">스크랩한 공고가 없습니다.</td></tr>';
+                        tableBody.append(row);
+                    }
+                },
+                error: function(){
+                    alert('스크랩 리스트 출력 오류 발생');
+                }
+            });
+        }
+
+        function fetchMatchingPostings(email) {
+            $.ajax({
+                url: `http://localhost:8888/user/matchingPostings?email=${email}`,
+                method: "GET",
+                success: function(data) {
+                    const jobList = $('#positionMatch tbody');
+                    jobList.empty();
+                    data.forEach(job => {
+                        let parts = job.required_skills.split('//');
+                        let partlocation = job.location.split('//');
+                        const jobItem = `<tr>
+                            <td>${job.company_name}</td>
+                            <td><a href="/company/job_posting_detail_company?posting_id=${job.posting_id}">${job.title}</a></td>
+                            <td>`+parts[0]+` - `+parts[1]+`</td>
+                            <td>`+partlocation[0]+` `+partlocation[1]+` `+partlocation[2]+`</td>
+                            <td>${formatDate(job.application_deadline)}</td>
+                        </tr>`;
+                        jobList.append(jobItem);
+                    });
+                },
+                error: function() {
+                    alert('매칭된 공고를 가져오는 중 오류가 발생했습니다.');
+                }
+            });
+        }
+
+        function fetchLatestResume(email){
+            $.ajax({
+                url: `http://localhost:8888/user/currentResume?email=${email}`,
+                method: "GET",
+                success: function (data) {
+                    console.log(data.photo_newName);
+                    if (data) {
+                        $('#profilePhoto').attr('src', `/images/${data.photo_newName}`);
+                    } else {
+                        alert('이력서를 찾을 수 없습니다.');
+                    }
+                },
+                error: function () {
+                    alert('이력서를 가져오는 중 오류가 발생했습니다.');
+                }
+            });
+        }
+
+        function calculateAge(birthDateString) {
+            const birthDate = new Date(birthDateString);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDifference = today.getMonth() - birthDate.getMonth();
+            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function formatContact(contact) {
+            return contact.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+        }
+
+        function formatGender(gender) {
+            return gender === 'M' ? '남' : '여';
+        }
+    </script>
+</head>
+<body>
+	<div th:if="${session.company_id eq null}" id="menu"></div>
+
+    <div class="container">
+		<div th:if="${session.company_id eq null}" id="sidebar"></div>
+        <div class="content">
+            <div class="profile-section">
+                <img id="profilePhoto">
+                <div class="info">
+                    <strong><span id="profileUserName"></span></strong>
+                    <span>만 <span id="age"></span>세</span>
+                    <span id="gender"></span>
+                    <span id="contact"></span>
+                </div>
+            </div>
+            <div class="navigation">
+                <div><a href="/user/appliedList">지원완료</a></div>
+                <div><a href="/user/resumeList">이력서 열람</a></div>
+                <div><a href="/user/positionProposal">포지션 제안</a></div>
+            </div>
+            <div class="job-list">
+                <h3>포지션 매칭 공고</h3>
+                <table id="positionMatch" border="1">
+                    <thead>
+                        <tr>
+                            <th>기업이름</th>
+                            <th>공고제목</th>
+                            <th>직무</th>
+                            <th>위치</th>
+                            <th>마감일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="job-list">
+                <h3>스크랩한 공고</h3>
+                <table id="scrapTable" border="1">
+                    <thead>
+                        <tr>
+                            <th>기업 이름</th>
+                            <th>공고 제목</th>
+                            <th>마감일</th>
+                            <th>스크랩 취소</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

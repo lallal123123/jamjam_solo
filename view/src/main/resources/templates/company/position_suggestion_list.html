@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<link th:if="${session.company_id ne null}" rel="stylesheet" type="text/css" href="/css/company.css">   
+</head>
+<body>
+    <div th:if="${session.company_id ne null}" th:replace="header :: headerFragment">
+        <!-- The header content will be included here -->
+    </div>
+    <div class="container">
+        
+        <div class="sidebar" th:if="${session.company_id ne null}" th:replace="sidebar :: sidebarFragment">
+            <!-- Sidebar content will be included here -->
+        </div>
+        <div class="content">
+         <h1> 포지션 제안자 리스트</h1>
+<div id = "box"></div>
+<div id="result"></div>
+         
+         
+         
+         
+        </div>
+    </div>
+
+
+<script >
+pre();
+function pre(){
+	let box = document.querySelector("#box");
+	let company_id="[[${session.company_id}]]";
+ 
+	//alert(company_id);
+	const xhttp = new XMLHttpRequest();
+    xhttp.onload = function() {
+       let proposals = JSON.parse(this.responseText);
+       
+       proposals.forEach(proposal =>{
+    	   
+    	  box.innerHTML += '<div class="proposal_id" id='+proposal.proposal_id+'> <span class="user_name">' +proposal.user_name +'</span>'+
+    	   '<span class="proposal_title">' +proposal.proposal_title +
+    	   '</span><span class="status">' +proposal.status +
+    	   '</span><span><button class="contentBtn" onclick="content(event,'+proposal.proposal_id+')">제안내용보기</button></span></div><div class="proposal_content" id ="proposal_content'+proposal.proposal_id+'" style="display : none;">'+proposal.proposal_content+'</div>';
+       });
+       
+       
+    };
+    xhttp.open("GET", "http://localhost:8888/company/positionProposal/" + company_id);
+    xhttp.send();
+}
+
+ function content(e,proposal_id){
+	// alert("버튼 함수 들어옴");
+	 const content = document.querySelector(`#proposal_content${proposal_id}`);
+	    content.style.display = content.style.display === "none" ? "block" : "none";
+ }
+ 
+ 
+</script>
+</body>
+</html>

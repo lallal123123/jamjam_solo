@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Signup</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#signupForm").submit(function(event) {
+                event.preventDefault(); // 기본 폼 제출 방지
+
+                var formData = {
+                    email: $("#email").val(),
+                    name: $("#name").val(),
+                    contact: $("#contact").val(),
+                    address: $("#address").val(),
+                    birthDate: $("#birthDate").val(),
+                    gender: $("#gender").val()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/signup",
+                    data: JSON.stringify(formData),
+                    contentType: "application/json",
+                    dataType: "text",
+                    success: function(response) {
+                        alert("Signup successful");
+                        window.location.href = "/"; // 성공 시 리디렉션
+                    },
+                    error: function(xhr, status, error) {
+                        alert("Signup failed: " + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Additional Information</h1>
+    <form id="signupForm">
+        <div>
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email" th:value="${email}" readonly required />
+        </div>
+        <div>
+            <label for="name">이름:</label>
+            <input type="text" id="name" name="name" th:value="${name}" required />
+        </div>
+        <div>
+            <label for="contact">연락처:</label>
+            <input type="text" id="contact" name="contact" maxlength="11" placeholder="-를 제외하고 숫자만 입력해주세요."/>
+        </div>
+        <div>
+            <label for="address">주소:</label>
+            <textarea id="address" name="address"></textarea>
+        </div>
+        <div>
+            <label for="birthDate">생년월일:</label>
+            <input type="date" id="birthDate" name="birthDate" />
+        </div>
+        <div>
+            <label for="gender">성별:</label>
+            <select id="gender" name="gender">
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</body>
+</html>

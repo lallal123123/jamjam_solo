@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Job Posting Detail</title>
+<script src="https://code.jquery.com/jquery-3.7.1.js"
+    integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1, h2, h3 {
+        color: #333;
+    }
+
+    .job-header {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+    .job-details, .job-contact, .job-footer {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .job-details h3, .job-contact h3 {
+        color: #007bff;
+        border-bottom: 1px solid #007bff;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+
+    .field {
+        margin-bottom: 10px;
+    }
+
+    .field .label {
+        font-weight: bold;
+    }
+
+    .job-footer p {
+        font-size: 14px;
+        color: #777;
+    }
+
+    #result_post, #result_delete {
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background-color: #f5f5f5;
+    }
+
+    .application-deadline {
+        font-size: 20px;
+        font-weight: bold;
+        color: #dc3545; /* Bootstrap danger color for emphasis */
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+        padding-top: 60px;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .resume-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .resume-list li {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .resume-list li:hover {
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+</style>
+ 
+</head>
+<body>
+   
+        <!-- The header content will be included here -->
+    </div>
+    <div class="container">
+        
+       
+            <!-- Sidebar content will be included here -->
+        </div>
+        <div class="content">
+         
+         <h1>채용 공고 상세페이지</h1>
+
+<div id="postingContainer">
+<div class="logoBox">
+    <img src="#" id="logo" width ="300px" height="300px">
+</div>
+    <div class="job-header">
+        <h2><span id="title"></span></h2>
+        <p>Company: <a id="company_name" href=""></a>
+<span id="company_id" style="display: none;"></span></p>
+
+        <p>모집업종: <span id="industry"></span></p>
+    </div>
+    <div class="job-details">
+        <h3>공고 상세정보</h3>
+        <div class="field">
+            <span class="label">모집직무 : </span> <span id="job_role"></span>
+        </div>
+        <div class="field">
+            <span class="label">직무내용 : </span> <span id="job_description"></span>
+        </div>
+        <div class="field">
+            <span class="label">경력사항 :</span> <span id="experience_required"></span>
+        </div>
+        <div class="field">
+            <span class="label">고용형태 :</span> <span id="employment_type"></span>
+        </div>
+        <div class="field">
+            <span class="label">모집인원 :</span> <span id="number_of_positions"></span>
+        </div>
+        <div class="field">
+            <span class="label">임금조건 :</span> <span id="salary_condition"></span>
+        </div>
+        <div class="field">
+            <span class="label">임금형태:</span> <span id="salary_type"></span>
+        </div>
+        <div class="field">
+            <span class="label">학력조건:</span> <span id="education_requirement"></span>
+        </div>
+        <div class="field">
+            <span class="label">필요스킬:</span> <span id="required_skills"></span>
+        </div>
+        <div class="field">
+            <span class="label">근무지역:</span> <span id="location"></span>
+        </div>
+        <div class="field">
+            <span class="label">근무시간:</span> <span id="working_hours"></span>
+        </div>
+        <div class="field">
+            <span class="label">기타복리후생:</span> <span id="benefits"></span>
+        </div>
+        <div class="field">
+            <span class="label">키워드 :</span> <span id="keywords"></span>
+        </div>
+    </div>
+    <div class="job-contact">
+        <h3>Contact Information</h3>
+        <div class="field">
+            <span class="label">담당자 :</span> <span id="contact_person_name"></span>
+        </div>
+        <div class="field">
+            <span class="label">담당자 이메일 :</span> <span id="contact_person_email"></span>
+        </div>
+        <div class="field">
+            <span class="label">담당자 연락처 :</span> <span id="contact_person_phone"></span>
+        </div>
+    </div>
+    <div class="job-footer">
+        <p>View Count: <span id="view_count"></span></p>
+        <p>Posted on: <span id="created_at"></span></p>
+        <p>Last Updated: <span id="updated_at"></span></p>
+    </div>
+</div>
+
+<div class="application-deadline">
+    <h3> 공고 마감일자:</h3>
+    <p id="application_deadline" class="application-deadline-value"></p>
+</div>
+
+<div class="actions" id="actions" style="display: none;">
+    <button onclick="showResumeModal()">공고 지원하기</button>
+    <button onclick="scrapJob()">공고 스크랩하기</button>
+    <button id="editButton" style="display: none;" onclick="editJobPosting()">공고 수정하기</button>
+</div>
+
+
+<!-- 이력서 선택 모달 -->
+<div id="resumeModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeResumeModal()">&times;</span>
+        <h2>이력서 선택</h2>
+        <ul id="resumeList" class="resume-list"></ul>
+    </div>
+</div>
+         
+         
+         
+        </div>
+    </div>
+
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var companyId = /*[[${session.company_id}]]*/ 'null';
+    /*]]>*/
+</script>
+<script>
+$(document).ready(function() {
+    fetchUserInfo();
+    checkCompanySession();
+});
+
+function fetchUserInfo() {
+    $.ajax({
+        url: "http://localhost:8888/userInfo",
+        method: "GET",
+        xhrFields: {
+            withCredentials: true
+        },
+        success: function(data) {
+            if (data) {
+                userEmail = data.email;
+                if (data.role === "ROLE_USER") {
+                    document.getElementById("actions").style.display = "block";
+                    checkJobApplicationStatus();
+                    checkJobScrapStatus();
+                    postViewedUp();
+                }
+            }
+        },
+        error: function(xhr) {
+            console.log("Failed to fetch user info. Status: " + xhr.status);
+        }
+    });
+}
+
+function checkCompanySession() {
+    if (companyId != null) {
+        const editButtonHtml = `<button onclick="editJobPosting()">수정하기</button>`;
+        $('#postingContainer').append(editButtonHtml);
+    }
+}
+
+function postViewedUp(){
+    const urlParams = new URLSearchParams(window.location.search);
+    const post_id = urlParams.get('posting_id');
+   
+    $.ajax({
+        url: `http://localhost:8888/user/postViewUp/${post_id}`,
+        method: "PUT",
+        success: function(data){
+            console.log("view up success")
+        },
+        error: function() {
+            console.log("view up error");
+        }
+    });
+}
+
+function checkJobApplicationStatus() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const post_id = urlParams.get('posting_id');
+
+    $.ajax({
+        url: `http://localhost:8888/user/applied/${post_id}?email=${userEmail}`,
+        method: "GET",
+        success: function(hasApplied) {
+            if (hasApplied) {
+                const applyButton = document.querySelector("#actions button[onclick='showResumeModal()']");
+                applyButton.textContent = "지원한 공고";
+                applyButton.disabled = true;
+            }
+        }
+    });
+}
+
+function checkJobScrapStatus() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const post_id = urlParams.get('posting_id');
+
+    $.ajax({
+        url: `http://localhost:8888/user/scrapped/${post_id}?email=${userEmail}`,
+        method: "GET",
+        success: function(hasScrapped) {
+            const scrapButton = document.querySelector("#actions button[onclick='scrapJob()']");
+            if (hasScrapped) {
+                scrapButton.textContent = "스크랩 취소";
+                scrapButton.onclick = cancelScrapJob;
+            }
+        }
+    });
+}
+
+function showResumeModal() {
+    const modal = document.getElementById("resumeModal");
+    modal.style.display = "block";
+
+    $.ajax({
+        url: `http://localhost:8888/user/resumes?email=${userEmail}`,
+        method: "GET",
+        success: function(data) {
+            const resumeList = $("#resumeList");
+            resumeList.empty();
+            data.forEach(function(resume) {
+                const listItem = `<li onclick="applyJob(${resume.resume_id})">${resume.title}</li>`;
+                resumeList.append(listItem);
+            });
+        },
+        error: function() {
+            alert("Failed to fetch resume list.");
+        }
+    });
+}
+
+function closeResumeModal() {
+    const modal = document.getElementById("resumeModal");
+    modal.style.display = "none";
+}
+
+function applyJob(resume_id) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const post_id = urlParams.get('posting_id');
+
+    $.ajax({
+        url: `http://localhost:8888/user/applyJob/${post_id}?email=${userEmail}&resume_id=${resume_id}`,
+        method: "POST",
+        success: function(data) {
+            alert("공고 지원이 성공했습니다.");
+            const applyButton = document.querySelector("#actions button[onclick='showResumeModal()']");
+            applyButton.textContent = "지원한 공고";
+            applyButton.disabled = true;
+            closeResumeModal();
+        },
+        error: function() {
+            alert("공고 지원 중 오류가 발생했습니다.");
+        }
+    });
+}
+
+function scrapJob() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const post_id = urlParams.get('posting_id');
+    $.ajax({
+        url: `http://localhost:8888/user/scrapJob/${post_id}?email=${userEmail}`,
+        method: "POST",
+        success: function(data) {
+            alert("공고 스크랩이 성공했습니다.");
+            const scrapButton = document.querySelector("#actions button[onclick='scrapJob()']");
+            if (scrapButton) {
+                scrapButton.textContent = "스크랩 취소";
+                scrapButton.onclick = cancelScrapJob;
+            }
+        },
+        error: function() {
+            alert("공고 스크랩 중 오류가 발생했습니다.");
+        }
+    });
+}
+
+function cancelScrapJob() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const post_id = urlParams.get('posting_id');
+    $.ajax({
+        url: `http://localhost:8888/user/cancelScrapJob/${post_id}?email=${userEmail}`,
+        method: "DELETE",
+        success: function(data) {
+            alert("스크랩 취소가 성공했습니다.");
+            const scrapButton = document.querySelector("#actions button[onclick='scrapJob()']");
+            if (scrapButton) {
+                scrapButton.textContent = "공고 스크랩하기";
+                scrapButton.onclick = scrapJob;
+            }
+        },
+        error: function() {
+            alert("스크랩 취소 중 오류가 발생했습니다.");
+        }
+    });
+}
+
+preJobposting();
+
+function preJobposting() {
+    let posting_id = "[[${posting_id}]]";
+    let postingContainer = document.querySelector("#postingContainer");
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onload = function() {
+        let posting = JSON.parse(this.responseText);
+        document.querySelector("#title").innerHTML = posting.title;
+        document.querySelector("#company_id").innerHTML = posting.company_id;
+        let parts = posting.industry.split('//');
+        let sector1=parts[0];
+        let sector2=parts[1];  
+        document.querySelector("#industry").innerHTML = sector2;
+        parts = posting.job_role.split('//');
+        let job_role1=parts[0];
+        let job_role2=parts[1];  
+        document.querySelector("#job_role").innerHTML = job_role2;
+        document.querySelector("#job_description").innerHTML = posting.job_description;
+        document.querySelector("#experience_required").innerHTML = posting.experience_required;
+        document.querySelector("#employment_type").innerHTML = posting.employment_type;
+        document.querySelector("#number_of_positions").innerHTML = posting.number_of_positions;
+       
+        const formattedNumber = Number(posting.salary_condition).toLocaleString('ko-KR');
+        document.querySelector("#salary_condition").innerHTML = formattedNumber + " 만원";
+        document.querySelector("#salary_type").innerHTML = posting.salary_type;
+        document.querySelector("#education_requirement").innerHTML = posting.education_requirement;
+        parts = posting.required_skills.split('//');
+        let required_skills1=parts[0];
+        let required_skills2=parts[1];
+        document.querySelector("#required_skills").innerHTML =required_skills2;
+        parts = posting.location.split('//');
+        let location1=parts[0];
+        let location2=parts[1];
+        let location3=parts[2];
+        document.querySelector("#location").innerHTML = location1 + " " + location2 + " " +location3;
+        document.querySelector("#working_hours").innerHTML = posting.working_hours;
+        document.querySelector("#benefits").innerHTML = posting.benefits;
+        parts = posting.keywords.split('//');
+        let keywords1=parts[0];
+        let keywords2=parts[1];
+        document.querySelector("#keywords").innerHTML =keywords1 + " " + keywords2;
+        document.querySelector("#contact_person_name").innerHTML = posting.contact_person_name;
+        document.querySelector("#contact_person_email").innerHTML = posting.contact_person_email;
+        document.querySelector("#contact_person_phone").innerHTML = posting.contact_person_phone;
+        document.querySelector("#application_deadline").innerHTML = posting.application_deadline;
+
+        // Application deadline formatting
+        let deadline = new Date(posting.application_deadline);
+        let formattedDeadline = deadline.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        document.querySelector(".application-deadline-value").innerHTML = formattedDeadline;
+
+        document.querySelector("#view_count").innerHTML = posting.view_count;
+        document.querySelector("#created_at").innerHTML = posting.created_at.slice(0,10);
+        document.querySelector("#updated_at").innerHTML = posting.updated_at.slice(0,10);
+        preCompanyInfo();
+    };
+    xhttp.open("GET", "http://localhost:8888/company/jobposting/" + posting_id);
+    xhttp.send();
+}
+function preCompanyInfo(){
+    let company_id = document.querySelector("#company_id").textContent;
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+           let companyInfo = JSON.parse(this.responseText);
+         
+            document.querySelector("#logo").src="/images/"+ companyInfo.new_name;
+            fetchCompanyInfo();
+           
+        };
+        xhttp.open("GET", "http://localhost:8888/company/companyInfo/" + company_id);
+        xhttp.send();
+}
+
+
+function fetchCompanyInfo() {
+    let company_id = document.querySelector("#company_id").textContent;
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onload = function() {
+        let company = JSON.parse(this.responseText);
+     
+        let companyNameElement = document.querySelector("#company_name");
+        companyNameElement.innerHTML = company.company_name;
+        companyNameElement.href = `/company/company_introduction_detail?company_id=${company_id}`;  // 회사 상세 페이지 URL로 설정
+    };
+    xhttp.open("GET", "http://localhost:8888/company/" + company_id);
+    xhttp.send();
+}
+
+function editJobPosting() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const posting_id = urlParams.get('posting_id');
+    window.location.href = `/company/job_posting_edit?posting_id=${posting_id}`;
+}
+
+</script>
+</body>
+</html>
